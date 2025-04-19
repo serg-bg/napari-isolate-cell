@@ -106,10 +106,12 @@ def isolate_widget(
             if hasattr(layer, 'source') and layer.source and layer.source.path:
                  in_path = Path(layer.source.path)
                  base_name = in_path.stem
-                 output_dir = in_path.parent
+                 output_dir = in_path.parent / "isolated_outputs"
+                 output_dir.mkdir(exist_ok=True)
             else:
                  base_name = f"{layer.name}_isolated_at_{xyz_int[0]}_{xyz_int[1]}_{xyz_int[2]}"
-                 output_dir = Path.cwd()
+                 output_dir = Path.cwd() / "isolated_outputs"
+                 output_dir.mkdir(exist_ok=True)
 
             output_tif_path = output_dir / f"{base_name}_isolated.tif"
             output_swc_path = output_dir / f"{base_name}_isolated.swc"
@@ -169,7 +171,10 @@ def isolate_widget(
                 print(f"Bound layer '{bound_layer.name}' removed, cleaning up callback.")
                 _cleanup_callback(widget_state)
                 # Disconnect listener to prevent memory leaks if widget persists
-                viewer.layers.events.removed.disconnect(_handle_layer_removal)
+                try:
+                    viewer.layers.events.removed.disconnect(_handle_layer_removal)
+                except (TypeError, RuntimeError):
+                    pass
                 
         # Connect only if not already connected (simple check)
         try: 
@@ -177,8 +182,27 @@ def isolate_widget(
         except (TypeError, RuntimeError): # Already disconnected or never connected
              pass
         viewer.layers.events.removed.connect(_handle_layer_removal)
-        
-    # --- On Button Click --- 
-    activate_click_mode() # Call the activation logic directly
+    
+    # Connect the activate function to the call button
+    isolate_widget.call_button.clicked.disconnect()  # Remove default handler
+    isolate_widget.call_button.clicked.connect(activate_click_mode)
+    
+    # Return the widget (magicgui decorator creates this as a container)
+    return isolate_widget
 
-# No return value needed if magicgui handles the widget lifecycle.
+# --- Public factory for napari manifest ------------------------------------
+# Napari expects the callable referenced in the manifest to be either a
+# QtWidgets.QWidget subclass, a magicgui Widget **class**, or a function that
+# returns a widget instance (and optionally accepts a `viewer` kwarg).  Since
+# `isolate_widget` is already a *created* FunctionGui *instance*, we expose a
+# tiny factory that just returns it.  This avoids the TypeError raised when
+# napari tries to introspect the FunctionGui directly.
+
+def make_isolate_widget(viewer: napari.Viewer | None = None, **_ignore):  # type: ignore[valid-type]
+    """Factory required by napari to obtain the widget instance.
+
+    Napari will inject the current ``viewer`` when calling this factory.
+    We simply return the (singleton) :pydata:`isolate_widget` FunctionGui we
+    created above.
+    """
+    return isolate_widget

@@ -3,9 +3,13 @@ display_name: Isolate Cell from Segmentation
 # use 'hidden' to remove plugin from napari hub search results
 visibility: public
 # see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
-categories: ["Segmentation", "Analysis", "Annotation"]
+categories: ["Segmentation"]
 
 contributions:
+  commands:
+    - id: napari-isolate-cell.isolate_widget
+      python_name: napari_isolate_cell._widget:make_isolate_widget
+      title: Isolate Cell Arbor
   widgets:
-    - command: napari_isolate_cell._widget:isolate_widget
+    - command: napari-isolate-cell.isolate_widget
       display_name: "Isolate Cell Arbor"

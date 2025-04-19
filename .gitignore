@@ -83,3 +83,7 @@ venv/
 
 # written by setuptools_scm
 **/_version.py
+
+# Project local outputs & lockfiles
+isolated_outputs/
+uv.lock
