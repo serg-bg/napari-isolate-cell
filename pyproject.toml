@@ -20,15 +20,18 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "napari[all]",
     "numpy",
     "magicgui",
     "qtpy",
     "scikit-image",
+    "scipy",
+    "kimimaro",
+    "tifffile",
 ]
 
 [project.optional-dependencies]
@@ -65,7 +68,7 @@ version = {attr = "napari_isolate_cell.__init__.__version__"}
 
 [tool.black]
 line-length = 79
-target-version = ['py310', 'py311', 'py312', 'py313']
+target-version = ['py310', 'py311', 'py312']
 
 [tool.ruff]
 line-length = 79
