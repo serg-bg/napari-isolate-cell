@@ -83,11 +83,20 @@ def isolate_widget(
             xyz_int = tuple(int(round(c)) for c in xyz_float)
             print(f"Clicked position (data): {xyz_int}")
 
+            # --- Fetch current parameter values from the widget to honour late changes ---
+            current_close_radius = isolate_widget.close_radius.value
+            current_dust_threshold = isolate_widget.dust_threshold.value
+            current_anisotropy = (
+                isolate_widget.anisotropy_z.value,
+                isolate_widget.anisotropy_y.value,
+                isolate_widget.anisotropy_x.value,
+            )
+
             if not hasattr(layer, 'data') or layer.data is None:
                 raise ValueError("Selected layer has no data.")
             
-            print(f"Isolating arbor (closing radius={close_radius})...")
-            isolated_label_volume = isolate_arbor(layer.data, xyz_int, close_radius)
+            print(f"Isolating arbor (closing radius={current_close_radius})...")
+            isolated_label_volume = isolate_arbor(layer.data, xyz_int, current_close_radius)
 
             if np.sum(isolated_label_volume > 0) == 0:
                  print(f"Isolation resulted in an empty volume near {xyz_int}.")
@@ -119,9 +128,8 @@ def isolate_widget(
             print(f"Saving volume to: {output_tif_path}")
             imwrite(output_tif_path, isolated_label_volume, imagej=True, metadata={'axes': 'ZYX'})
 
-            anisotropy = (anisotropy_z, anisotropy_y, anisotropy_x)
-            print(f"Skeletonizing (dust={dust_threshold}) and saving SWC to: {output_swc_path}")
-            skeletonize_swc(isolated_label_volume, str(output_swc_path), anisotropy=anisotropy, dust_threshold=dust_threshold)
+            print(f"Skeletonizing (dust={current_dust_threshold}) and saving SWC to: {output_swc_path}")
+            skeletonize_swc(isolated_label_volume, str(output_swc_path), anisotropy=current_anisotropy, dust_threshold=current_dust_threshold)
             
             print("Processing complete.")
             from napari.utils.notifications import show_info

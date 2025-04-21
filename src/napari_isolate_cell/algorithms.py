@@ -94,6 +94,17 @@ def skeletonize_swc(label_vol: np.ndarray, swc_path: str, anisotropy: tuple[floa
     # 1) centreline extraction via thinning
     skel_mask = skeletonize_3d(volume_to_skeletonize > 0)
 
+    # Remove tiny skeleton fragments ("dust") if requested
+    if dust_threshold > 0:
+        labeled_skeleton = cc_label(skel_mask, connectivity=3)
+        # Compute size of each connected component (component 0 is background)
+        comp_sizes = np.bincount(labeled_skeleton.ravel())
+        # Identify component ids that are smaller than the threshold (skip background id 0)
+        small_ids = np.where((comp_sizes < dust_threshold) & (np.arange(comp_sizes.size) != 0))[0]
+        if small_ids.size:
+            skel_mask[np.isin(labeled_skeleton, small_ids)] = False
+            print(f"Removed {small_ids.size} small skeleton component(s) below {dust_threshold} voxels.")
+
     if not np.any(skel_mask):
         print("Warning: Skeletonization produced an empty skeleton. Writing empty SWC.")
         with open(swc_path, "w") as f:
