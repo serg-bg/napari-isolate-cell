@@ -1,7 +1,7 @@
 """
 This module contains the napari widget for isolating cell arbors from segmentation volumes.
 """
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from magicgui import magicgui
 from magicgui.widgets import SpinBox
@@ -24,7 +24,7 @@ from .algorithms import isolate_arbor, skeletonize_swc
     call_button="Activate Click Isolation", # Changed button text for clarity
     layout="vertical",
     labels_layer={"label": "Input Labels Layer"},
-    close_radius={"widget_type": SpinBox, "label": "Morphological Closing Radius (voxels)", "min": 0, "max": 10, "value": 1},
+    close_radius={"widget_type": SpinBox, "label": "Morphological Closing Radius (voxels)", "min": 0, "max": 10, "value": 0},
     anisotropy_z={"label": "Anisotropy (Z)", "min": 0.1, "max": 100.0, "value": DEFAULT_ANISOTROPY[0], "step": 0.1},
     anisotropy_y={"label": "Anisotropy (Y)", "min": 0.1, "max": 100.0, "value": DEFAULT_ANISOTROPY[1], "step": 0.1},
     anisotropy_x={"label": "Anisotropy (X)", "min": 0.1, "max": 100.0, "value": DEFAULT_ANISOTROPY[2], "step": 0.1},
@@ -46,6 +46,42 @@ def isolate_widget(
     # This helps manage callbacks if multiple widgets are opened
     widget_state = {"click_callback": None, "bound_layer": None}
     
+    # --- Anisotropy Handling ---
+    def _update_anisotropy_from_layer(layer: Optional[napari.layers.Labels]):
+        """Updates the anisotropy spinboxes based on the layer's scale."""
+        if isinstance(layer, napari.layers.Labels):
+            scale = layer.scale
+            print(f"Updating anisotropy from layer '{layer.name}' scale: {scale}")
+            if len(scale) == 3:
+                try:
+                    # Assuming scale is in ZYX order
+                    isolate_widget.anisotropy_z.value = float(scale[0])
+                    isolate_widget.anisotropy_y.value = float(scale[1])
+                    isolate_widget.anisotropy_x.value = float(scale[2])
+                except (ValueError, TypeError) as e:
+                    print(f"Warning: Could not set anisotropy from layer scale {scale}: {e}")
+                    # Reset to default if conversion fails
+                    isolate_widget.anisotropy_z.value = DEFAULT_ANISOTROPY[0]
+                    isolate_widget.anisotropy_y.value = DEFAULT_ANISOTROPY[1]
+                    isolate_widget.anisotropy_x.value = DEFAULT_ANISOTROPY[2]
+            else:
+                print(f"Warning: Layer scale has unexpected dimensions ({len(scale)}). Expected 3 (ZYX). Using defaults.")
+                isolate_widget.anisotropy_z.value = DEFAULT_ANISOTROPY[0]
+                isolate_widget.anisotropy_y.value = DEFAULT_ANISOTROPY[1]
+                isolate_widget.anisotropy_x.value = DEFAULT_ANISOTROPY[2]
+        else:
+             print("No valid Labels layer selected, resetting anisotropy to default.")
+             # Reset to default if no valid layer is selected
+             isolate_widget.anisotropy_z.value = DEFAULT_ANISOTROPY[0]
+             isolate_widget.anisotropy_y.value = DEFAULT_ANISOTROPY[1]
+             isolate_widget.anisotropy_x.value = DEFAULT_ANISOTROPY[2]
+
+    # Connect the function to layer changes in the widget's layer selection dropdown
+    # Use getattr because the widget instance isn't fully available yet? Seems needed.
+    getattr(isolate_widget, 'labels_layer').changed.connect(_update_anisotropy_from_layer)
+    # Update anisotropy once initially based on the initially selected layer (if any)
+    _update_anisotropy_from_layer(labels_layer) 
+
     def _cleanup_callback(state):
         """Removes the click callback if it exists and layer is valid."""
         active_callback = state.get("click_callback")
@@ -108,8 +144,13 @@ def isolate_widget(
             if viewer is None or viewer.window is None:
                  print("Error: Napari viewer is not available.")
                  return
-            viewer.add_labels(isolated_label_volume, name=isolated_layer_name)
-            print(f"Added isolated cell layer: '{isolated_layer_name}'")
+            # Add the result as a new layer, inheriting the scale from the input layer
+            viewer.add_labels(
+                 isolated_label_volume, 
+                 name=isolated_layer_name,
+                 scale=layer.scale # Pass the scale from the original input layer
+            )
+            print(f"Added isolated cell layer: '{isolated_layer_name}' with scale {layer.scale}")
 
             # --- File Saving --- 
             if hasattr(layer, 'source') and layer.source and layer.source.path:
@@ -195,22 +236,27 @@ def isolate_widget(
     isolate_widget.call_button.clicked.disconnect()  # Remove default handler
     isolate_widget.call_button.clicked.connect(activate_click_mode)
     
+    # --- Initial Update --- 
+    # Ensure anisotropy is set based on the initial layer when widget is first created
+    _update_anisotropy_from_layer(labels_layer)
+
     # Return the widget (magicgui decorator creates this as a container)
     return isolate_widget
 
 # --- Public factory for napari manifest ------------------------------------
 # Napari expects the callable referenced in the manifest to be either a
 # QtWidgets.QWidget subclass, a magicgui Widget **class**, or a function that
-# returns a widget instance (and optionally accepts a `viewer` kwarg).  Since
+# returns a widget instance (and optionally accepts a `viewer` kwarg). Since
 # `isolate_widget` is already a *created* FunctionGui *instance*, we expose a
-# tiny factory that just returns it.  This avoids the TypeError raised when
+# tiny factory that just returns it. This avoids the TypeError raised when
 # napari tries to introspect the FunctionGui directly.
 
 def make_isolate_widget(viewer: napari.Viewer | None = None, **_ignore):  # type: ignore[valid-type]
     """Factory required by napari to obtain the widget instance.
 
     Napari will inject the current ``viewer`` when calling this factory.
-    We simply return the (singleton) :pydata:`isolate_widget` FunctionGui we
+    We simply return the (singleton) isolate_widget FunctionGui we
     created above.
     """
+    # The isolate_widget instance is created when the @magicgui decorator runs
     return isolate_widget
