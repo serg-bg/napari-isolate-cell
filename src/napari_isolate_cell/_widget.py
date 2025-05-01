@@ -170,7 +170,15 @@ def isolate_widget(
             imwrite(output_tif_path, isolated_label_volume, imagej=True, metadata={'axes': 'ZYX'})
 
             print(f"Skeletonizing (dust={current_dust_threshold}) and saving SWC to: {output_swc_path}")
-            skeletonize_swc(isolated_label_volume, str(output_swc_path), anisotropy=current_anisotropy, dust_threshold=current_dust_threshold)
+            # Ensure the anisotropy used for SWC matches the original layer's scale exactly
+            swc_anisotropy = tuple(layer.scale) 
+            print(f"Using layer scale as anisotropy for SWC: {swc_anisotropy}")
+            skeletonize_swc(
+                isolated_label_volume, 
+                str(output_swc_path), 
+                anisotropy=swc_anisotropy, # Use layer.scale directly
+                dust_threshold=current_dust_threshold
+            )
             
             print("Processing complete.")
             from napari.utils.notifications import show_info
