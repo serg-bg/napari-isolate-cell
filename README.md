@@ -1,11 +1,9 @@
 # napari-isolate-cell
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-isolate-cell.svg?color=green)](https://github.com/serg-bg/napari-isolate-cell/raw/main/LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/napari-isolate-cell.svg?color=green)](https://pypi.org/project/napari-isolate-cell)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-isolate-cell.svg?color=green)](https://python.org)
 [![tests](https://github.com/serg-bg/napari-isolate-cell/workflows/tests/badge.svg)](https://github.com/serg-bg/napari-isolate-cell/actions)
 [![codecov](https://codecov.io/gh/serg-bg/napari-isolate-cell/branch/main/graph/badge.svg)](https://codecov.io/gh/serg-bg/napari-isolate-cell)
-[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-isolate-cell)](https://napari-hub.org/plugins/napari-isolate-cell)
 [![npe2](https://img.shields.io/badge/plugin-npe2-blue?link=https://napari.org/stable/plugins/index.html)](https://napari.org/stable/plugins/index.html)
 
 A [napari] plugin to isolate single cell morphologies (e.g., neurons) from label volumes based on a user click, automatically read image scale, and export the isolated structure as TIFF and correctly scaled SWC files.
@@ -29,25 +27,7 @@ This plugin helps streamline the process of extracting individual cell structure
 
 ## Installation
 
-### Option 1: From napari-hub (Recommended for Users)
-
-Once available on the [napari hub], you will be able to install directly from within Napari:
-
-1.  Open Napari.
-2.  Go to `Plugins` > `Install/Uninstall Plugins...`
-3.  Search for `napari-isolate-cell` and click `Install`.
-
-### Option 2: From PyPI (Using pip)
-
-You can install the latest release from PyPI using pip:
-
-```bash
-pip install napari-isolate-cell
-```
-
-### Option 3: From Source (For Development)
-
-To install the latest development version:
+Currently, installation is primarily from source:
 
 1.  **Clone the repository:**
     ```bash
