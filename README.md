@@ -8,6 +8,8 @@
 
 A [napari] plugin to isolate single cell morphologies (e.g., neurons) from label volumes based on a user click, automatically read image scale, and export the isolated structure as TIFF and correctly scaled SWC files.
 
+![Demo of napari-cell-isolate plugin](images/napari-cell-isolate-demo.gif)
+
 ----------------------------------
 
 ## Overview
@@ -24,6 +26,10 @@ This plugin helps streamline the process of extracting individual cell structure
     *   Saves the isolated label volume as a TIFF file.
     *   Saves the skeletonized structure as an SWC file with coordinates reflecting the original image's physical scale (micrometers).
 *   **Configurable Parameters:** Adjust morphological closing radius (defaults to 0 for dense segmentations) and skeleton dust threshold.
+
+## Workflow
+
+![Workflow diagram](images/One-click_cell_isolation_RESPAN.png)
 
 ## Installation
 
