@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "napari-isolate-cell: Click-based neuron isolation from dense segmentations"
 version: 0.1.0
-date-released: 2024-12-01
+date-released: 2025-08-06
 authors:
   - family-names: "Bernal-Garcia"
     given-names: "Sergio"
