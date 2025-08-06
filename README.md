@@ -33,66 +33,41 @@ This plugin helps streamline the process of extracting individual cell structure
 
 ## Installation
 
-Currently, installation is primarily from source:
+### For Users (Recommended)
+```bash
+pip install napari-isolate-cell
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/serg-bg/napari-isolate-cell.git
-    cd napari-isolate-cell
-    ```
+Or using [uv](https://github.com/astral-sh/uv) (faster):
+```bash
+uv pip install napari-isolate-cell
+```
 
-2.  **Create and activate a virtual environment:**
-    *   **Using `uv` (Recommended, Fast):**
-        ```bash
-        # Install uv if you haven't already (see https://github.com/astral-sh/uv#installation)
-        uv venv
-        source .venv/bin/activate # Linux/macOS
-        # OR: .\.venv\Scripts\activate # Windows
-        ```
-    *   **Using standard `venv`:**
-        ```bash
-        python -m venv .venv # Or python3
-        source .venv/bin/activate # Linux/macOS
-        # OR: .\.venv\Scripts\activate # Windows
-        ```
-
-3.  **Install the plugin in editable mode:**
-    *   **Using `uv`:**
-        ```bash
-        uv pip install -e .
-        # To include testing dependencies:
-        # uv pip install -e .[testing]
-        ```
-    *   **Using `pip`:**
-        ```bash
-        pip install -e .
-        # To include testing dependencies:
-        # pip install -e .[testing]
-        ```
+### For Developers
+```bash
+git clone https://github.com/serg-bg/napari-isolate-cell.git
+cd napari-isolate-cell
+pip install -e .[testing]
+```
 
 ## Usage
 
-1.  **Launch Napari:** Open Napari. If you installed from source, ensure your virtual environment is activated.
-2.  **Open the Widget:** Go to `Plugins` > `napari-isolate-cell` > `Isolate Cell Arbor`.
-3.  **Load Data:**
-    *   Open your 3D segmentation volume (e.g., a `.tif` file from nnUNet).
-    *   The plugin's TIFF reader will attempt to automatically read the ZYX scale from the file's metadata. Check Napari's status bar or layer info to confirm the scale looks correct.
-    *   Ensure the data is loaded as a `Labels` layer in Napari. If it loads as an `Image` layer (e.g., due to data type or number of unique values), right-click the layer and select `Convert to Labels`.
-4.  **Select Input Layer:** Choose your loaded Labels layer from the `Input Labels Layer` dropdown in the widget.
-5.  **Check Anisotropy:** The `Anisotropy (Z/Y/X)` fields should automatically update based on the scale read from the selected layer. Verify these values match your expectations.
-6.  **Adjust Parameters (Optional):**
-    *   `Morphological Closing Radius (voxels)`: Defaults to `0`, which is often best for separating touching cells in dense segmentations. Increase this (e.g., to `1` or `2`) if individual cells in your segmentation have small internal holes or fragmented parts that need bridging.
-    *   `Skeleton Dust Threshold (voxels)`: Sets the minimum size (in voxels) for skeleton branches to be kept. Increase this to remove small, potentially noisy skeleton fragments.
-7.  **Activate Isolation:** Click the `Activate Click Isolation` button.
-8.  **Click on Target Cell:** In the Napari viewer, click once on the soma (or any part) of the specific cell you want to isolate.
-9.  **Outputs:**
-    *   A new Labels layer (e.g., `isolated_YourLayerName_Z_Y_X`) will appear in Napari containing only the isolated cell, displayed with the correct scale.
-    *   In the same directory as your input TIFF file, a new sub-directory named `isolated_outputs` will be created.
-    *   Inside `isolated_outputs`, two files will be saved:
-        *   `YourLayerName_isolated.tif`: The isolated cell volume.
-        *   `YourLayerName_isolated.swc`: The skeletonized structure. The XYZ coordinates in this file are in physical units (micrometers, based on the detected scale), suitable for direct use in tools like SNT.
+1. **Launch napari** and open your 3D segmentation (`.tif` file)
+2. **Open plugin**: `Plugins` → `napari-isolate-cell` → `Isolate Cell Arbor`
+3. **Select your labels layer** from the dropdown
+4. **Click "Activate Click Isolation"**
+5. **Click any cell** in the viewer to isolate it
 
-10. **Downstream Analysis Note:** When loading the generated SWC file into analysis software like SNT ([ImageJ plugin](https://imagej.net/plugins/snt/)), you might observe a very slight offset (e.g., half a voxel) between the SWC overlay and the original image due to minor differences in coordinate system interpretation (voxel center vs. corner). Such minor adjustments are typically best handled within the dedicated analysis software if needed.
+**Outputs:**
+- New labels layer with isolated cell
+- `isolated_outputs/` folder containing:
+  - `.tif` - Isolated cell volume
+  - `.swc` - Skeleton with physical coordinates (µm)
+
+**Parameters:**
+- **Morphological Closing**: Default 0 (increase to bridge small gaps)
+- **Dust Threshold**: Default 100 (minimum skeleton branch size in voxels)
+- **Anisotropy**: Auto-detected from TIFF metadata
 
 ## Requirements
 
