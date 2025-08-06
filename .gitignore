@@ -80,6 +80,8 @@ venv/
 
 # OS
 .DS_Store
+CLAUDE.md
+NAPARI_PUBLISHING_ROADMAP.md
 
 # written by setuptools_scm
 **/_version.py

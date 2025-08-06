@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "napari-isolate-cell: Click-based neuron isolation from dense segmentations"
+version: 0.1.0
+date-released: 2024-12-01
+authors:
+  - family-names: "Bernal-Garcia"
+    given-names: "Sergio"
+    email: "smb2318@columbia.edu"
+    affiliation: "Columbia University"
+abstract: "A napari plugin for isolating individual cell morphologies from dense 3D segmentation volumes with automatic scale detection and SWC export."
+keywords:
+  - napari
+  - neuroscience
+  - segmentation
+  - morphology
+  - SWC
+  - single cell isolation
+license: BSD-3-Clause
+repository-code: "https://github.com/serg-bg/napari-isolate-cell"

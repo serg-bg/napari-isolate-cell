@@ -1,9 +1,10 @@
 name: napari-isolate-cell
 display_name: Isolate Cell from Segmentation
+schema_version: "0.2.0"
 # use 'hidden' to remove plugin from napari hub search results
 visibility: public
 # see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
-categories: ["Segmentation"]
+categories: ["Segmentation", "Annotation", "Visualization"]
 
 contributions:
   commands:

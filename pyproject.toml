@@ -23,6 +23,18 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 requires-python = ">=3.10"
+keywords = [
+    "napari",
+    "plugin", 
+    "neuron",
+    "neuroscience",
+    "segmentation",
+    "morphology",
+    "swc",
+    "cell isolation",
+    "image analysis",
+    "3D visualization"
+]
 dependencies = [
     "napari[all]",
     "numpy",
@@ -33,6 +45,13 @@ dependencies = [
     "kimimaro",
     "tifffile",
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/serg-bg/napari-isolate-cell"
+"Bug Tracker" = "https://github.com/serg-bg/napari-isolate-cell/issues"
+"Documentation" = "https://github.com/serg-bg/napari-isolate-cell#readme"
+"Source Code" = "https://github.com/serg-bg/napari-isolate-cell"
+"Citation" = "https://github.com/serg-bg/napari-isolate-cell/blob/main/CITATION.cff"
 
 [project.optional-dependencies]
 testing = [
