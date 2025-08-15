@@ -153,15 +153,19 @@ def isolate_widget(
             print(f"Added isolated cell layer: '{isolated_layer_name}' with scale {layer.scale}")
 
             # --- File Saving --- 
-            if hasattr(layer, 'source') and layer.source and layer.source.path:
-                 in_path = Path(layer.source.path)
-                 base_name = in_path.stem
-                 output_dir = in_path.parent / "isolated_outputs"
-                 output_dir.mkdir(exist_ok=True)
+            # Check if layer has source path (set by napari when loading files)
+            if hasattr(layer, 'source') and layer.source and hasattr(layer.source, 'path'):
+                source_path = Path(layer.source.path)
+                base_name = source_path.stem
+                output_dir = source_path.parent / "isolated_outputs"
+                output_dir.mkdir(exist_ok=True)
+                print(f"Saving to: {output_dir}")
             else:
-                 base_name = f"{layer.name}_isolated_at_{xyz_int[0]}_{xyz_int[1]}_{xyz_int[2]}"
-                 output_dir = Path.cwd() / "isolated_outputs"
-                 output_dir.mkdir(exist_ok=True)
+                # Fallback: Use home directory with descriptive name
+                base_name = f"{layer.name}_isolated_at_{xyz_int[0]}_{xyz_int[1]}_{xyz_int[2]}"
+                output_dir = Path.home() / "napari_isolated_outputs"
+                output_dir.mkdir(exist_ok=True)
+                print(f"Warning: Could not determine source path. Using fallback directory: {output_dir}")
 
             output_tif_path = output_dir / f"{base_name}_isolated.tif"
             output_swc_path = output_dir / f"{base_name}_isolated.swc"

@@ -2,7 +2,7 @@
 napari-isolate-cell plugin for isolating single cells from segmented volumes.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 
 # Import main widget function
 from ._widget import isolate_widget 
